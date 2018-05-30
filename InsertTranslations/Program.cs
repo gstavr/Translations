@@ -9,9 +9,7 @@ namespace InsertTranslations {
     class Program {
         static void Main( string[] args ) {
             UnicodeEncoding uniencoding = new UnicodeEncoding();
-            //string test1 = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            //string filepath = Path.GetFullPath("C:\\Users\\Mpoumpos\\Documents\\Visual Studio 2017\\Projects\\MCDA\\HelloWorld\\excel.xlsx");
-            //string fullPath = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory + "excel.xlsx");
+
             string fullPath = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory);
             //!Translation Folder
             string translationsPath =  Path.Combine(fullPath, "Translations");
@@ -28,6 +26,12 @@ namespace InsertTranslations {
                 Console.WriteLine();
                 if ( checkKey( key ) > 0 && checkKey( key ) <= getFileEntries() ) {
                     CreateScriptFile( getSpecificFile( checkKey( key ) ) );
+                }else if( checkKey( key ) == 0 ) {
+                    for(int i = 1; i<= getFileEntries(); i++ ) {
+                        CreateScriptFile( getSpecificFile( i ) );
+                    }
+                    Console.WriteLine( "Files Created Application will Close in 2 sec" );
+                    Timer t = new Timer(Exit, null, 2000, 2000);
                 }
             }
         }
@@ -96,7 +100,7 @@ namespace InsertTranslations {
                     ProcessFile( fileName, index );
                     index++;
                 }
-                Console.WriteLine( "Choose a file to create SQL Script from {0} to {1} or Press any other key to Exit", 1, index - 1 );
+                Console.WriteLine( "Choose a file to create SQL Script from {0} to {1} or Press 0 for all files or Press any other key to Exit", 1, index - 1 );
             }
             else {
                 Console.WriteLine( "No Files Found Application will Close in 5 sec" );
