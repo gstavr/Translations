@@ -22,8 +22,7 @@ namespace InsertTranslations {
             Directory.CreateDirectory( GeneratedPath );
             Directory.CreateDirectory( SQLPath );
             //! End
-            bool valid = true;
-            while ( valid ) {
+            while ( true ) {
                 showFiles();
                 ConsoleKeyInfo key = Console.ReadKey();
                 Console.WriteLine();
@@ -36,8 +35,7 @@ namespace InsertTranslations {
 
 
         private static void CreateScriptFile( string filePath ) {
-            ;
-
+            
             FileStream stream = File.Open(filePath, FileMode.Open, FileAccess.Read);
             Encoding.RegisterProvider( CodePagesEncodingProvider.Instance );
             //1. Reading from a binary Excel file ('97-2003 format; *.xls)
@@ -60,12 +58,14 @@ namespace InsertTranslations {
                 foreach ( DataRow row in dt.Rows ) {
                     DataColumnCollection columns = dt.Columns;
 
-                    for ( int i = 1; i < columns.Count; i++ ) {
-                        sb.AppendFormat( "IF NOT EXISTS (select 1 from X_StaticTranslations_FactoryDefaults where [Cd] = '{0}' AND [Language] = {1}) \n", row[0].ToString(), i, row[i].ToString() );
-                        sb.AppendLine( "BEGIN" );
-                        sb.AppendFormat("\tINSERT INTO X_StaticTranslations_FactoryDefaults ([Cd], [Language], [TranslatedText], [Category]) VALUES ('{0}', {1}, N'{2}',2) \n", row[0].ToString(), i, row[i].ToString() );
-                        sb.AppendLine( "END" );
-                        sb.AppendLine( "GO" );
+                    for ( int i = 1; i < 3; i++ ) {
+                        if( row[3].ToString().Length > 0 ) {
+                            sb.AppendFormat( "IF NOT EXISTS (select 1 from X_StaticTranslations_FactoryDefaults where [Cd] = '{0}' AND [Language] = {1}) \n", row[3].ToString(), i );
+                            sb.AppendLine( "BEGIN" );
+                            sb.AppendFormat( "\tINSERT INTO X_StaticTranslations_FactoryDefaults ([Cd], [Language], [TranslatedText], [Category]) VALUES ('{0}', {1}, N'{2}',2) \n", row[3].ToString(), i, row[i + 3].ToString() );
+                            sb.AppendLine( "END" );
+                            sb.AppendLine( "GO" );
+                        }
                     }
                 }
                 sb.AppendLine( "" );
