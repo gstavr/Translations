@@ -3,12 +3,25 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <StartupObject>InsertTranslations.Program</StartupObject>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>DEBUG;TRACE;RELEASE;NETCOREAPP2_0</DefineConstants>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="ExcelDataReader" Version="3.4.0" />
     <PackageReference Include="ExcelDataReader.DataSet" Version="3.4.0" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.5.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0" />
   </ItemGroup>
 
 </Project>
