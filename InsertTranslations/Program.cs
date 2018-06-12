@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 
@@ -69,7 +70,7 @@ namespace InsertTranslations
             dt.AcceptChanges();
 
 
-            if (!CdExistsFunction(dt))
+            if (!CdExistsFunction(dt , filePath))
             {
                 //! Saved path
                 string SQLPath = Path.Combine(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), "SQL");
@@ -94,22 +95,19 @@ namespace InsertTranslations
                     }
                     sb.AppendLine("");
                     file.WriteLine(sb.ToString());
+                    file.Close();
                 }
+              
                 //6. Free resources (IExcelDataReader is IDisposable)
                 excelReader.Close();
                 //! Move File to Generated Folder
-
+                stream.Close();
                 string GeneratedFolder = Path.Combine(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), "Generated");
                 string destFile = System.IO.Path.Combine(GeneratedFolder, Path.GetFileName(filePath));
                 // Use Path class to manipulate file and directory paths.
                 File.Copy(filePath, destFile, true);
                 File.Delete(filePath);
             }
-            else
-            {
-
-            }
-
         }
 
         /// <summary>
@@ -189,13 +187,19 @@ namespace InsertTranslations
         /// If at least one Cd exist dont create the file.
         /// And export Dublicate Cds
         /// </summary>
-        private static bool CdExistsFunction(DataTable dataTable)
+        private static bool CdExistsFunction(DataTable dataTable , string filePath)
         {
             bool exists = false;
             List<string> Cds = GetAllCDs(dataTable);
-            DataTable dt = CheckCdsToDataBase(Cds);
-            return exists;
+            DataTable dt = CheckCdsToDataBase(Cds , filePath);
+            if(dt.Rows.Count > 0)
+            {
+                SaveDublicateEntriestoFile(dt, filePath);
+                //exists = true;
+            }
+                
 
+            return exists;
         }
 
 
@@ -210,13 +214,14 @@ namespace InsertTranslations
 
             foreach (DataRow row in dataTable.Rows)
             {
-                Cds.Add(row[3].ToString());
+                if (!string.IsNullOrWhiteSpace(row[3].ToString()))
+                    Cds.Add(row[3].ToString());
             }
 
             return Cds;
         }
 
-        private static DataTable CheckCdsToDataBase(List<string> Cds)
+        private static DataTable CheckCdsToDataBase(List<string> Cds, string filePath)
         {
             DataTable dt = new DataTable();
             using (SqlConnection con = new SqlConnection("Data Source=dev2\\epsilon8; Initial Catalog = ess_dev; User Id = sa; Password = epsilonsa;"))
@@ -225,12 +230,35 @@ namespace InsertTranslations
                 con.Open();
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = con;
-                cmd.CommandText = "SELECT cd FROM X_StaticTranslations_FactoryDefaults WHERE Cd in('adad', 'close') GROUP by cd";
+                string test = string.Format("'{0}'",string.Join(",", Cds.ToArray<string>()).Replace(",", "','"));
+                cmd.CommandText = $"SELECT cd FROM X_StaticTranslations_FactoryDefaults WHERE Cd in({test}) GROUP by cd";
                 SqlDataReader reader = cmd.ExecuteReader();
                 dt.Load(reader);
+                con.Close();
+            }
+            
+            return dt;
+        }
+
+        private static void SaveDublicateEntriestoFile(DataTable Cds, string filePath)
+        {
+            StringBuilder sb = new StringBuilder();
+            //! Write Dublicate Entries To
+            string SQLPath = Path.Combine(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), "Translations");
+            using (StreamWriter file = new StreamWriter(Path.Combine(SQLPath, string.Format(Path.GetFileName(filePath).Split('.')[0] + "_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".txt")), false, new UTF8Encoding(false)))
+            {
+                foreach (DataRow Cd in Cds.Rows)
+                {
+                    sb.AppendLine($"{Cd[0]}");
+                }
+                
+                file.WriteLine(sb.ToString());
+
+                file.Close();
             }
 
-            return dt;
+            Console.WriteLine($"File: { Path.GetFileName(filePath)} has Dublicate Entries and wasn't Created");
+            Console.WriteLine("");
         }
 
     }
