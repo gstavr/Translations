@@ -195,7 +195,7 @@ namespace InsertTranslations
             if(dt.Rows.Count > 0)
             {
                 SaveDublicateEntriestoFile(dt, filePath);
-                //exists = true;
+                exists = true;
             }
                 
 
