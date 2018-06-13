@@ -39,10 +39,12 @@ namespace InsertTranslations
                 }
                 else if (checkKey(key) == 0)
                 {
-                    for (int i = 1; i <= getFileEntries(); i++)
+
+                    foreach(string filepath in getAllFiles())
                     {
-                        CreateScriptFile(getSpecificFile(i));
+                        CreateScriptFile(filepath);
                     }
+                   
                     Console.WriteLine("Files Created Application will Close in 2 sec");
                     Timer t = new Timer(Exit, null, 2000, 2000);
                 }
@@ -148,6 +150,13 @@ namespace InsertTranslations
             string[] fileEntries = Directory.GetFiles(Path.Combine(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), "Translations"), "*.xlsx");
 
             return fileEntries[index - 1];
+        }
+
+        private static string[] getAllFiles()
+        {
+            string[] fileEntries = Directory.GetFiles(Path.Combine(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), "Translations"), "*.xlsx");
+
+            return fileEntries;
         }
 
         // Insert logic for processing found files here.
