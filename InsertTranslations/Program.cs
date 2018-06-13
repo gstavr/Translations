@@ -36,7 +36,6 @@ namespace InsertTranslations
                 if (checkKey(key) > 0 && checkKey(key) <= getFileEntries())
                 {
                     CreateScriptFile(getSpecificFile(checkKey(key)));
-                    CreateSQLFile();
                 }
                 else if (checkKey(key) == 0)
                 {
@@ -71,7 +70,11 @@ namespace InsertTranslations
                 }
             }
 
-            using (StreamWriter files = new StreamWriter(Path.Combine(SQLPath, string.Format( "SQLAll.sql")), false, new UTF8Encoding(false)))
+            string sqlAllFilePath = Path.Combine(SQLPath, string.Format("SQLAll.sql"));
+            if (File.Exists(sqlAllFilePath))
+                File.Delete(sqlAllFilePath);
+
+            using (StreamWriter files = new StreamWriter(Path.Combine(SQLPath, string.Format("SQLAll.sql")), false, new UTF8Encoding(false)))
             {
                 files.Write(sqlScript);
                 files.Close();
