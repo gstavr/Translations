@@ -36,21 +36,48 @@ namespace InsertTranslations
                 if (checkKey(key) > 0 && checkKey(key) <= getFileEntries())
                 {
                     CreateScriptFile(getSpecificFile(checkKey(key)));
+                    CreateSQLFile();
                 }
                 else if (checkKey(key) == 0)
                 {
 
-                    foreach(string filepath in getAllFiles())
+                    foreach (string filepath in getAllFiles())
                     {
                         CreateScriptFile(filepath);
                     }
-                   
+                    CreateSQLFile();
                     Console.WriteLine("Files Created Application will Close in 2 sec");
                     Timer t = new Timer(Exit, null, 2000, 2000);
                 }
             }
         }
 
+        private static void CreateSQLFile()
+        {
+            string[] fileEntries = Directory.GetFiles(Path.Combine(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), "SQL"), "*.sql");
+
+            StringBuilder sqlScript = new StringBuilder();
+            //! Saved path
+            string SQLPath = Path.Combine(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), "SQL");
+            foreach (string file in fileEntries)
+            {
+                using (StreamReader sr = File.OpenText(file))
+                {
+                    string s = "";
+                    while ((s = sr.ReadLine()) != null)
+                    {
+                        sqlScript.AppendLine(s);
+                    }
+                }
+            }
+
+            using (StreamWriter files = new StreamWriter(Path.Combine(SQLPath, string.Format( "SQLAll.sql")), false, new UTF8Encoding(false)))
+            {
+                files.Write(sqlScript);
+                files.Close();
+            }
+
+        }
 
         private static void CreateScriptFile(string filePath)
         {
@@ -72,7 +99,7 @@ namespace InsertTranslations
             dt.AcceptChanges();
 
 
-            if (!CdExistsFunction(dt , filePath))
+            if (!CdExistsFunction(dt, filePath))
             {
                 //! Saved path
                 string SQLPath = Path.Combine(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), "SQL");
@@ -99,7 +126,7 @@ namespace InsertTranslations
                     file.WriteLine(sb.ToString());
                     file.Close();
                 }
-              
+
                 //6. Free resources (IExcelDataReader is IDisposable)
                 excelReader.Close();
                 //! Move File to Generated Folder
@@ -196,21 +223,20 @@ namespace InsertTranslations
         /// If at least one Cd exist dont create the file.
         /// And export Dublicate Cds
         /// </summary>
-        private static bool CdExistsFunction(DataTable dataTable , string filePath)
+        private static bool CdExistsFunction(DataTable dataTable, string filePath)
         {
             bool exists = false;
             List<string> Cds = GetAllCDs(dataTable);
-            DataTable dt = CheckCdsToDataBase(Cds , filePath);
-            if(dt.Rows.Count > 0)
+            DataTable dt = CheckCdsToDataBase(Cds, filePath);
+            if (dt.Rows.Count > 0)
             {
                 SaveDublicateEntriestoFile(dt, filePath);
                 exists = true;
             }
-                
+
 
             return exists;
         }
-
 
         /// <summary>
         /// Get All File Cds
@@ -239,13 +265,13 @@ namespace InsertTranslations
                 con.Open();
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = con;
-                string test = string.Format("'{0}'",string.Join(",", Cds.ToArray<string>()).Replace(",", "','"));
+                string test = string.Format("'{0}'", string.Join(",", Cds.ToArray<string>()).Replace(",", "','"));
                 cmd.CommandText = $"SELECT cd FROM X_StaticTranslations_FactoryDefaults WHERE Cd in({test}) GROUP by cd";
                 SqlDataReader reader = cmd.ExecuteReader();
                 dt.Load(reader);
                 con.Close();
             }
-            
+
             return dt;
         }
 
@@ -260,7 +286,7 @@ namespace InsertTranslations
                 {
                     sb.AppendLine($"{Cd[0]}");
                 }
-                
+
                 file.WriteLine(sb.ToString());
 
                 file.Close();
