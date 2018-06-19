@@ -69,6 +69,34 @@ namespace InsertTranslations
                     }
                 }
             }
+            sqlScript.AppendLine("GO");
+            sqlScript.AppendLine("PRINT('------------ Summary ------------')");
+            sqlScript.AppendLine("GO");
+            sqlScript.AppendLine("UPDATE st");
+            sqlScript.AppendLine("SET st.TranslatedText = fd.TranslatedText");
+            sqlScript.AppendLine("FROM X_StaticTranslations_FactoryDefaults fd");
+            sqlScript.AppendLine("LEFT JOIN X_StaticTranslations st on fd.Cd = st.Cd and fd.[Language] = st.LanguageID");
+            sqlScript.AppendLine("WHERE fd.TranslatedText <> st.TranslatedText and isnull(st.NoUpdate,0) = 0;");
+            sqlScript.AppendLine("GO");
+            sqlScript.AppendLine("\tINSERT INTO X_StaticTranslations (Cd, LanguageID, Category, TranslatedText)");
+            sqlScript.AppendLine("SELECT fd.Cd, fd.Language, fd.Category,fd.TranslatedText");
+            sqlScript.AppendLine("FROM X_StaticTranslations_FactoryDefaults fd");
+            sqlScript.AppendLine("LEFT JOIN X_StaticTranslations st on fd.Cd = st.Cd and fd.[Language] = st.LanguageID");
+            sqlScript.AppendLine("WHERE st.Cd is null;");
+            sqlScript.AppendLine("GO");
+            sqlScript.AppendLine("UPDATE o");
+            sqlScript.AppendLine("SET o.VALUE = fd.VALUE");
+            sqlScript.AppendLine("FROM L_Object_FactoryDefaults fd");
+            sqlScript.AppendLine("LEFT JOIN L_Object o on o.ID_TABLE =fd.ID_TABLE and o.ID_LANGUAGES = fd.ID_LANGUAGES and o.TABLE_NAME = fd.TABLE_NAME");
+            sqlScript.AppendLine("WHERE o.VALUE <> fd.VALUE and isnull(o.NO_UPDATE,0) = 0;");
+            sqlScript.AppendLine("GO");
+            sqlScript.AppendLine("\tINSERT INTO L_Object (ID_TABLE, ID_LANGUAGES, DATA_TYPE,VALUE,TABLE_NAME)");
+            sqlScript.AppendLine("SELECT fd.ID_TABLE, fd.ID_LANGUAGES, fd.DATA_TYPE, fd.VALUE, fd.TABLE_NAME");
+            sqlScript.AppendLine("FROM L_Object_FactoryDefaults fd");
+            sqlScript.AppendLine("LEFT JOIN L_Object l on l.ID_TABLE = fd.ID_TABLE and l.ID_LANGUAGES = fd.ID_LANGUAGES and l.TABLE_NAME = fd.TABLE_NAME");
+            sqlScript.AppendLine("WHERE l.ID_TABLE is null AND l.VALUE is null;");
+            sqlScript.AppendLine("GO");
+            sqlScript.AppendLine("PRINT 'Custom Script Completed'");
 
             string sqlAllFilePath = Path.Combine(SQLPath, string.Format("SQLAll.sql"));
             if (File.Exists(sqlAllFilePath))
@@ -163,6 +191,7 @@ namespace InsertTranslations
             }
             else
             {
+                CreateSQLFile();
                 Console.WriteLine("No Files Found Application will Close in 5 sec");
                 Timer t = new Timer(Exit, null, 5000, 5000);
             }
