@@ -44,20 +44,26 @@ namespace InsertTranslations
                     {
                         CreateScriptFile(filepath);
                     }
-                    CreateSQLFile();
                     Console.WriteLine("Files Created Application will Close in 2 sec");
                     Timer t = new Timer(Exit, null, 2000, 2000);
+                }
+                else
+                {
+                    CreateSQLFile();
                 }
             }
         }
 
         private static void CreateSQLFile()
         {
-            string[] fileEntries = Directory.GetFiles(Path.Combine(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), "SQL"), "*.sql");
-
-            StringBuilder sqlScript = new StringBuilder();
-            //! Saved path
             string SQLPath = Path.Combine(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), "SQL");
+            string sqlAllFilePath = Path.Combine(SQLPath, string.Format("SQLAll.sql"));
+            if (File.Exists(sqlAllFilePath))
+                File.Delete(sqlAllFilePath);
+
+            string[] fileEntries = Directory.GetFiles(Path.Combine(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), "SQL"), "*.sql");
+            StringBuilder sqlScript = new StringBuilder();
+            
             foreach (string file in fileEntries)
             {
                 using (StreamReader sr = File.OpenText(file))
@@ -98,9 +104,7 @@ namespace InsertTranslations
             sqlScript.AppendLine("GO");
             sqlScript.AppendLine("PRINT 'Custom Script Completed'");
 
-            string sqlAllFilePath = Path.Combine(SQLPath, string.Format("SQLAll.sql"));
-            if (File.Exists(sqlAllFilePath))
-                File.Delete(sqlAllFilePath);
+            
 
             using (StreamWriter files = new StreamWriter(Path.Combine(SQLPath, string.Format("SQLAll.sql")), false, new UTF8Encoding(false)))
             {
