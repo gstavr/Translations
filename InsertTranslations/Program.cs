@@ -63,7 +63,7 @@ namespace InsertTranslations
 
             string[] fileEntries = Directory.GetFiles(Path.Combine(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), "SQL"), "*.sql");
             StringBuilder sqlScript = new StringBuilder();
-            
+            sqlScript.AppendLine("-------------------------- Custom Script ---------------------------");
             foreach (string file in fileEntries)
             {
                 using (StreamReader sr = File.OpenText(file))
@@ -75,6 +75,8 @@ namespace InsertTranslations
                     }
                 }
             }
+            sqlScript.AppendLine("-------------------------- Add Custom Script Updates/Insert ---------------------------");
+
             sqlScript.AppendLine("GO");
             sqlScript.AppendLine("PRINT('------------ Summary ------------')");
             sqlScript.AppendLine("GO");
@@ -148,10 +150,10 @@ namespace InsertTranslations
                         for (int i = 1; i < 3; i++)
                         {
                             if (row[3].ToString().Length > 0)
-                            {
+                            {   
                                 sb.AppendFormat("IF NOT EXISTS (select 1 from X_StaticTranslations_FactoryDefaults where [Cd] = '{0}' AND [Language] = {1}) \n", row[3].ToString().Trim().Replace("'","''"), i);
                                 sb.AppendLine("BEGIN");
-                                sb.AppendFormat("\tINSERT INTO X_StaticTranslations_FactoryDefaults ([Cd], [Language], [TranslatedText], [Category]) VALUES ('{0}', {1}, N'{2}',2) \n", row[3].ToString().Trim().Replace("'", "''"), i, row[i + 3].ToString());
+                                sb.AppendFormat("\tINSERT INTO X_StaticTranslations_FactoryDefaults ([Cd], [Language], [TranslatedText], [Category]) VALUES ('{0}', {1}, N'{2}',2) \n", row[3].ToString().Trim().Replace("'", "''"), i, row[i + 3].ToString().Trim().Replace("'", "''"));
                                 sb.AppendLine("END");
                                 sb.AppendLine("GO");
                             }
