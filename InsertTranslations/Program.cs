@@ -28,7 +28,8 @@ namespace InsertTranslations
             Directory.CreateDirectory(GeneratedPath);
             Directory.CreateDirectory(SQLPath);
             //! End
-            while (true)
+            bool finish = true;
+            while (finish)
             {
                 showFiles();
                 ConsoleKeyInfo key = Console.ReadKey();
@@ -44,8 +45,9 @@ namespace InsertTranslations
                     {
                         CreateScriptFile(filepath);
                     }
-                    Console.WriteLine("Files Created Application will Close in 2 sec");
-                    Timer t = new Timer(Exit, null, 2000, 2000);
+                    Console.WriteLine("Files Created Application will Close in 10 sec");
+                    Timer t = new Timer(Exit, null, 10000, 10000);
+                    finish = false;
                 }
                 else
                 {
@@ -255,6 +257,10 @@ namespace InsertTranslations
                 // Use Path class to manipulate file and directory paths.
                 File.Copy(filePath, destFile, true);
                 File.Delete(filePath);
+            }
+            else
+            {
+                Console.WriteLine($"File ${Path.GetFileName(filePath)} has Empty or Null values");
             }
             
         }
