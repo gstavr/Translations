@@ -45,6 +45,7 @@ namespace InsertTranslations
                     {
                         CreateScriptFile(filepath);
                     }
+                    CreateSQLFile();
                     Console.WriteLine("Files Created Application will Close in 10 sec");
                     Timer t = new Timer(Exit, null, 10000, 10000);
                     finish = false;
@@ -288,7 +289,7 @@ namespace InsertTranslations
             {
                 CreateSQLFile();
                 Console.WriteLine("No Files Found Application will Close in 5 sec");
-                Timer t = new Timer(Exit, null, 5000, 5000);
+                Timer t = new Timer(Exit, null, 10000, 10000);
             }
         }
 
@@ -330,7 +331,8 @@ namespace InsertTranslations
             }
             else
             {
-                Environment.Exit(0);
+                Console.WriteLine("Error in Key!!!!!");
+                Timer t = new Timer(Exit, null, 10000, 10000);
             }
 
             return number;
