@@ -221,7 +221,7 @@ namespace InsertTranslations
                 }
                 else
                 {
-                    if (!string.IsNullOrWhiteSpace(row[3].ToString().Trim()) && !hasEmptyValues)
+                    if (!string.IsNullOrWhiteSpace(row[3].ToString().Trim()) && !row[3].ToString().Trim().Equals("..") && !hasEmptyValues)
                     {
                         for (int i = 1; i < 3; i++)
                         {
