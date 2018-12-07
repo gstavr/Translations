@@ -94,7 +94,6 @@ namespace InsertTranslations
             sqlScriptFinal.AppendLine("-------------------------- Add Custom Script Insert Scripts ---------------------------");
             sqlScriptFinal.Append(sqlScriptInsert);
             sqlScriptFinal.AppendLine("-------------------------- Add Update Scripts ---------------------------");
-            sqlScriptFinal.AppendLine("GO");
             sqlScriptFinal.Append(sqlScriptUpdate);
             sqlScriptFinal.AppendLine("PRINT('------------ Summary ------------')");
             sqlScriptFinal.AppendLine("GO");
