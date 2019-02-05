@@ -46,14 +46,16 @@ namespace InsertTranslations
                         CreateScriptFile(filepath);
                     }
                     CreateSQLFile();
-                    Console.WriteLine("Files Created Application will Close in 10 sec");
-                    Timer t = new Timer(Exit, null, 10000, 10000);
                     finish = false;
                 }
                 else
                 {
                     CreateSQLFile();
                 }
+
+                Console.WriteLine("Files Created Application will Close in 10 sec");
+                System.Threading.Thread.Sleep(10000);
+                Timer t = new Timer(Exit, null, 1, 1);
             }
         }
 
