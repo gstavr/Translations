@@ -83,9 +83,9 @@ namespace InsertTranslations
                         stringLines.AppendLine(s);
                     }
                     
-                    if (Path.GetFileName(file).Contains("UpdateDynamic_") || Path.GetFileName(file).Contains("InsertDynamic_"))
+                    if (Path.GetFileName(file).Contains("Update_") || Path.GetFileName(file).Contains("InsertDynamic_"))
                     {
-                        if (Path.GetFileName(file).Contains("UpdateDynamic_"))
+                        if (Path.GetFileName(file).Contains("Update_"))
                             sqlScriptDynamicUpdate.Append(stringLines);
                         else
                             sqlScriptDynamicInsert.Append(stringLines);
@@ -166,11 +166,12 @@ namespace InsertTranslations
             dt.Rows[0].Delete();
             dt.AcceptChanges();
 
-            if (Path.GetFileName(filePath).Contains("UpdateDynamic_") || Path.GetFileName(filePath).Contains("InsertDynamic_"))
+            
+            if (Path.GetFileName(filePath).Contains("Update_") || Path.GetFileName(filePath).Contains("InsertDynamic_"))
             {
                 SaveFile(filePath, dt, true);
             }
-            else if (!CdExistsFunction(dt, filePath))
+            else if (Path.GetFileName(filePath).Contains("Insert_") && !CdExistsFunction(dt, filePath) && CheckGlobalOrControl(dt, filePath))
             {
                 SaveFile(filePath, dt, false);
             }
@@ -188,7 +189,7 @@ namespace InsertTranslations
                 if (isDynamic)
                 {
 
-                    if (Path.GetFileName(filePath).Contains("UpdateDynamic_"))
+                    if (Path.GetFileName(filePath).Contains("Update_"))
                     {
 
                         if (!string.IsNullOrWhiteSpace(row[2].ToString().Trim()) && !string.IsNullOrWhiteSpace(row[1].ToString().Trim()) && !hasEmptyValues)
@@ -404,6 +405,26 @@ namespace InsertTranslations
             return exists;
         }
 
+        private static bool CheckGlobalOrControl(DataTable dataTable, string filePath)
+        {
+            List<string> controlsList = new List<string>();
+            foreach(DataRow row in dataTable.Rows)
+            {
+                string controlValue = row.IsNull(0) ? string.Empty : row[0].ToString();
+                if (!string.IsNullOrWhiteSpace(controlValue) && controlsList.IndexOf(controlValue.Trim().ToString()).Equals(-1))
+                {
+                    controlsList.Add(controlValue.Trim());
+                }
+            }
+
+            if (!CheckControlToDataBase(controlsList))
+            {
+                Console.WriteLine($"File: { Path.GetFileName(filePath)} has Wrong Controls");
+            }
+
+            return CheckControlToDataBase(controlsList);
+        }
+
         /// <summary>
         /// Get All File Cds
         /// </summary>
@@ -439,6 +460,25 @@ namespace InsertTranslations
             }
 
             return dt;
+        }
+
+        private static bool CheckControlToDataBase(List<string> Controls)
+        {
+            int? count;
+            
+            using (SqlConnection con = new SqlConnection("Data Source=dev2\\epsilon8; Initial Catalog = ess_dev; User Id = sa; Password = epsilonsa;"))
+            {
+                con.ConnectionString = "Data Source=dev2\\epsilon8; Initial Catalog = ess_dev; User Id = sa; Password = epsilonsa;";
+                con.Open();
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = con;
+                string control = string.Format("'{0}'", string.Join(",", Controls.ToArray<string>()).Replace(",", "','"));
+                cmd.CommandText = $"SELECT COUNT([ID]) as Count FROM [ESS_DEV].[dbo].[X_UIControls] WHERE Cd IN ({control})";
+                count = (int?)cmd.ExecuteScalar();
+                con.Close();
+            }
+
+            return count.HasValue && count.Equals(Controls.Count());
         }
 
         private static void SaveDublicateEntriestoFile(DataTable Cds, string filePath)
