@@ -52,11 +52,16 @@ namespace InsertTranslations
                 {
                     CreateSQLFile();
                 }
-
-                Console.WriteLine("Files Created Application will Close in 10 sec");
-                System.Threading.Thread.Sleep(10000);
-                Timer t = new Timer(Exit, null, 1, 1);
             }
+
+            Console.WriteLine("Press any Key to exit Application");
+            Console.ReadKey();
+            new Timer(Exit, null, 1, 1);
+
+            //Console.WriteLine("Files Created Application will Close in 10 sec");
+            //System.Threading.Thread.Sleep(10000);
+            //new Timer(Exit, null, 1, 1);
+
         }
 
         private static void CreateSQLFile()
@@ -171,7 +176,7 @@ namespace InsertTranslations
             {
                 SaveFile(filePath, dt, true);
             }
-            else if (Path.GetFileName(filePath).Contains("Insert_") && !CdExistsFunction(dt, filePath) && CheckGlobalOrControl(dt, filePath))
+            else if (Path.GetFileName(filePath).Contains("InsertStatic_") && !CdExistsFunction(dt, filePath) && CheckGlobalOrControl(dt, filePath))
             {
                 SaveFile(filePath, dt, false);
             }
@@ -411,7 +416,7 @@ namespace InsertTranslations
             foreach(DataRow row in dataTable.Rows)
             {
                 string controlValue = row.IsNull(0) ? string.Empty : row[0].ToString();
-                if (!string.IsNullOrWhiteSpace(controlValue) && controlsList.IndexOf(controlValue.Trim().ToString()).Equals(-1))
+                if (!string.IsNullOrWhiteSpace(controlValue) && controlsList.IndexOf(controlValue.Trim().ToString()).Equals(-1) && !controlValue.Equals("Global"))
                 {
                     controlsList.Add(controlValue.Trim());
                 }
