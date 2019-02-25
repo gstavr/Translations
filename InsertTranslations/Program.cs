@@ -88,9 +88,9 @@ namespace InsertTranslations
                         stringLines.AppendLine(s);
                     }
                     
-                    if (Path.GetFileName(file).Contains("UpdateDynamic_") || Path.GetFileName(file).Contains("InsertDynamic_"))
+                    if (Path.GetFileName(file).Contains("Update_") || Path.GetFileName(file).Contains("InsertDynamic_"))
                     {
-                        if (Path.GetFileName(file).Contains("UpdateDynamic_"))
+                        if (Path.GetFileName(file).Contains("Update_"))
                             sqlScriptDynamicUpdate.Append(stringLines);
                         else
                             sqlScriptDynamicInsert.Append(stringLines);
@@ -172,7 +172,7 @@ namespace InsertTranslations
             dt.AcceptChanges();
 
             
-            if (Path.GetFileName(filePath).Contains("UpdateDynamic_") || Path.GetFileName(filePath).Contains("InsertDynamic_"))
+            if (Path.GetFileName(filePath).Contains("Update_") || Path.GetFileName(filePath).Contains("InsertDynamic_"))
             {
                 SaveFile(filePath, dt, true);
             }
@@ -194,7 +194,7 @@ namespace InsertTranslations
                 if (isDynamic)
                 {
 
-                    if (Path.GetFileName(filePath).Contains("UpdateDynamic_"))
+                    if (Path.GetFileName(filePath).Contains("Update_"))
                     {
 
                         if (!string.IsNullOrWhiteSpace(row[2].ToString().Trim()) && !string.IsNullOrWhiteSpace(row[1].ToString().Trim()) && !hasEmptyValues)
