@@ -249,7 +249,7 @@ namespace InsertTranslations
                         {
                             Value = Value.Contains("'") ? Value.Replace("'", "''") : Value;
 
-                            sb.AppendFormat("IF NOT EXISTS (select 1 from L_Object_FactoryDefaults where [ID_TABLE] = {0} AND [ID_LANGUAGES] = {1} AND [VALUE] = '{2}') \n", Convert.ToInt32(ID_Table), Convert.ToInt32(Language), Value);
+                            sb.AppendFormat("IF NOT EXISTS (select 1 from L_Object_FactoryDefaults where [ID_TABLE] = {0} AND [ID_LANGUAGES] = {1} AND [VALUE] = '{2}' AND [TABLE_NAME] = '{3}') \n", Convert.ToInt32(ID_Table), Convert.ToInt32(Language), Value, TableName);
                             sb.AppendLine("BEGIN");
                             sb.AppendFormat("\tINSERT INTO [dbo].[L_Object_FactoryDefaults]([ID_TABLE],[ID_LANGUAGES],[DATA_TYPE],[VALUE],[TABLE_NAME]) VALUES ({0},{1},'TEXT','{2}','{3}')\n", Convert.ToInt32(ID_Table), Convert.ToInt32(Language), Value, TableName);
                             sb.AppendLine("END");
